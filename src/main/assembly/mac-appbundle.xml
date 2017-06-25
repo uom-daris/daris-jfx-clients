@@ -1,0 +1,37 @@
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+	<id>mac-appbundle</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<baseDirectory>DaRIS Downloader.app</baseDirectory>
+	<includeBaseDirectory>true</includeBaseDirectory>
+	<files>
+		<file>
+			<source>src/main/resources/mac/Info.plist</source>
+			<outputDirectory>Contents</outputDirectory>
+		</file>
+		<file>
+			<source>src/main/resources/mac/JavaAppLauncher</source>
+			<outputDirectory>Contents/MacOS</outputDirectory>
+			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>src/main/resources/mac/downloader.icns</source>
+			<outputDirectory>Contents/Resources</outputDirectory>
+		</file>
+		<file>
+			<source>${project.build.directory}/daris-downloader-${project.version}.jar</source>
+			<outputDirectory>Contents/Java</outputDirectory>
+			<destName>daris-downloader.jar</destName>
+		</file>
+	</files>
+	<fileSets>
+		<fileSet>
+			<directory>/Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home/jre</directory>
+			<outputDirectory>Contents/Plugins/JRE/Contents/Home/jre</outputDirectory>
+		</fileSet>
+	</fileSets>
+</assembly>

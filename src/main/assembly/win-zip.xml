@@ -1,0 +1,29 @@
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+	<id>win-zip</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<baseDirectory>DaRIS Downloader</baseDirectory>
+	<includeBaseDirectory>true</includeBaseDirectory>
+	<files>
+		<file>
+			<source>src/main/resources/windows/daris-downloader.exe</source>
+			<outputDirectory>.</outputDirectory>
+			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>${project.build.directory}/daris-downloader-${project.version}.jar</source>
+			<outputDirectory>.</outputDirectory>
+			<destName>daris-downloader.jar</destName>
+		</file>
+	</files>
+	<fileSets>
+		<fileSet>
+			<directory>/Users/wliu5/Downloads/jre1.8.0_131</directory>
+			<outputDirectory>jre</outputDirectory>
+		</fileSet>
+	</fileSets>
+</assembly>

@@ -1,0 +1,107 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>au.edu.unimelb.daris</groupId>
+	<artifactId>daris-jfx-clients</artifactId>
+	<version>0.0.1</version>
+	<packaging>jar</packaging>
+
+	<name>daris-jfx-clients</name>
+	<url>https://github.com/uom-daris/daris-jfx-clients</url>
+	<description>DaRIS GUI(JavaFX) client applications.</description>
+	<properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<repositories>
+		<repository>
+			<id>daris-maven-repo</id>
+			<name>DaRIS maven repository on github.com</name>
+			<url>https://github.com/uom-daris/mvn-repo/raw/master</url>
+		</repository>
+	</repositories>
+	<dependencies>
+		<dependency>
+			<groupId>com.arcitecta</groupId>
+			<artifactId>mfclient</artifactId>
+			<version>4.5.037</version>
+		</dependency>
+		<!-- <dependency> <groupId>sh.tak.appbundler</groupId> <artifactId>appbundle-maven-plugin</artifactId> 
+			<version>1.2.0</version> </dependency> -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>daris.client.gui.app.ManifestDownloadApp</mainClass>
+									<manifestEntries>
+										<Main-Class>daris.client.gui.app.ManifestDownloadApp</Main-Class>
+										<App-Version>${project.version}</App-Version>
+										<Build-Time>${maven.build.timestamp}</Build-Time>
+									</manifestEntries>
+								</transformer>
+							</transformers>
+							<finalName>daris-downloader-${project.version}</finalName>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Mac Appbundle was generated using maven-appbundle-plugin. See details 
+				at: http://notepad2.blogspot.com.au/2017/06/wrap-java-as-mac-app-bundle.html -->
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>mac-appbundle</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/main/assembly/mac-appbundle.xml</descriptor>
+							</descriptors>
+							<appendAssemblyId>false</appendAssemblyId>
+							<finalName>daris-downloader-mac-${project.version}</finalName>
+						</configuration>
+					</execution>
+					<execution>
+						<id>win-zip</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/main/assembly/win-zip.xml</descriptor>
+							</descriptors>
+							<appendAssemblyId>false</appendAssemblyId>
+							<finalName>daris-downloader-win-${project.version}</finalName>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
