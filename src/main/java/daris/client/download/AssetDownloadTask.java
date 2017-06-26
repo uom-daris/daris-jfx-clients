@@ -233,15 +233,22 @@ public class AssetDownloadTask extends DownloadTask {
         StringBuilder sb = new StringBuilder();
         sb.append(outputDir.getCanonicalPath());
         String path = PathUtils.trimLeadingSlash(outputPath);
+
         String ext = ae.value("content/type/@ext");
         if (ext != null && path.endsWith("." + ext)) {
             path = path.substring(0, path.length() - 1 - ext.length());
         }
-        sb.append("/").append(path);
-        String mtype = toType.replace('/', '_');
-        if (!path.endsWith(mtype)) {
-            sb.append("/").append(mtype);
-        }
+
+        String fromType = ae.value("type");
+        String fromTypeComponent = fromType.replace('/', '_');
+        String toTypeComponent = toType.replace('/', '_');
+        if (path.indexOf(fromTypeComponent) != -1) {
+            path = path.replace(fromTypeComponent, toTypeComponent);
+            sb.append("/").append(path);
+        } else {
+            sb.append("/").append(path);
+            sb.append("/").append(toTypeComponent);
+        }     
         File dir = new File(sb.toString());
         try {
             if (!(dir.exists() && dir.isDirectory())) {
