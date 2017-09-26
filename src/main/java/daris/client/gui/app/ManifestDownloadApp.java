@@ -66,7 +66,7 @@ public class ManifestDownloadApp extends Application {
                 manifest = Manifest.loadFromFile(manifestFile);
             }
         } catch (Throwable e) {
-            Session.displayError(e.getMessage(), "loading manifest", e);
+            Session.displayError(e.getMessage(), "loading manifest", e, false);
         }
         if (manifest.needToDecryptToken()) {
             Dialog<String> dlg = new TokenDecryptDialog(manifest.tokenEncrypted());
@@ -83,7 +83,7 @@ public class ManifestDownloadApp extends Application {
         }
         final Manifest mf = manifest;
         if (!mf.hasToken()) {
-            Session.showLogonDialog(mf.serverHost(), mf.serverPort(), mf.serverTransport(), mf.domain(), mf.user(),
+            Session.displayLogonDialog(mf.serverHost(), mf.serverPort(), mf.serverTransport(), mf.domain(), mf.user(),
                     new LogonResponseHandler() {
 
                         @Override

@@ -145,4 +145,8 @@ public class ServiceTask implements ServiceRequest {
         executor.execute(_task);
     }
 
+    public boolean hasResponseHandler() {
+        return _rh != null;
+    }
+
 }

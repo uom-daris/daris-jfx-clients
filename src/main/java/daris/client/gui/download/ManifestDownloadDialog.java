@@ -55,7 +55,7 @@ public class ManifestDownloadDialog {
                 try {
                     Manifest mf = Manifest.loadFromFile(manifestFile);
                     if (!mf.hasToken()) {
-                        Session.showLogonDialog(mf.serverHost(), mf.serverPort(), mf.serverTransport(), mf.domain(),
+                        Session.displayLogonDialog(mf.serverHost(), mf.serverPort(), mf.serverTransport(), mf.domain(),
                                 mf.user(), new LogonResponseHandler() {
 
                                     @Override
@@ -80,7 +80,7 @@ public class ManifestDownloadDialog {
                         setManifest(mf);
                     }
                 } catch (Throwable t) {
-                    Session.displayError(t.getMessage(), "loading manifest file: " + manifestFile.getAbsolutePath(), t);
+                    Session.displayError(t.getMessage(), "loading manifest file: " + manifestFile.getAbsolutePath(), t, false);
                 }
             }
         });

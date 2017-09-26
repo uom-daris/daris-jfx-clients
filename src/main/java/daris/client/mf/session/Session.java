@@ -23,6 +23,7 @@ import daris.client.mf.authentication.IdentityProvider;
 import daris.client.mf.object.ObjectResolveHandler;
 import daris.client.mf.session.gui.DefaultErrorDialog;
 import daris.client.mf.session.gui.DefaultLogonDialog;
+import daris.client.util.UnhandledException;
 
 public class Session {
 
@@ -129,7 +130,7 @@ public class Session {
             if (rh != null) {
                 rh.logonFailed(e);
             } else {
-                displayError(null, "logging on Mediaflux", e);
+                displayError(null, "logging on Mediaflux", e, false);
             }
         } finally {
             if (cxn != null) {
@@ -152,7 +153,10 @@ public class Session {
         try {
             cxn = connect();
             XmlDoc.Element re = task.execute(cxn);
-            task.responseHandler().handleResult(re);
+            ServiceResponseHandler rh = task.responseHandler();
+            if (rh != null) {
+                task.responseHandler().handleResult(re);
+            }
         } catch (ServerClient.ExAborted | InterruptedException ex) {
             // System.out.println("Aborted service: " + sr.service());
         } catch (ServerClient.ExNotConnected | ServerClient.ExSessionInvalid e) {
@@ -161,9 +165,9 @@ public class Session {
                     execute(task);
                 });
             } else {
-                if (!task.responseHandler().handleError(e)) {
-                    displayError(e.getMessage(), "executing service: " + task.service(), e);
-                    ThrowableUtil.rethrowAsUnchecked(e);
+                ServiceResponseHandler rh = task.responseHandler();
+                if (rh != null && !rh.handleError(e)) {
+                    displayError(e.getMessage(), "executing service: " + task.service(), e, true);
                 }
             }
         } catch (Throwable e) {
@@ -171,9 +175,8 @@ public class Session {
                     || (e instanceof SocketException) || (e instanceof XmlDoc.ExParseError)) {
                 ping();
             }
-            if (!task.responseHandler().handleError(e)) {
-                displayError(e.getMessage(), "executing service: " + task.service(), e);
-                ThrowableUtil.rethrowAsUnchecked(e);
+            if (task.hasResponseHandler() && !task.responseHandler().handleError(e)) {
+                displayError(e.getMessage(), "executing service: " + task.service(), e, true);
             }
         } finally {
             if (cxn != null) {
@@ -203,27 +206,27 @@ public class Session {
 
             @Override
             public void handleResult(Element re) {
-                rh.handleResult(re);
+                if (rh != null) {
+                    rh.handleResult(re);
+                }
             }
 
             @Override
             public boolean handleError(Throwable t) {
+                displayError(t.getMessage(), context == null ? ("executing service: " + service) : context, t, false);
                 return false;
             }
         }, context));
     }
 
-    public static void displayError(String message, String context, Throwable t) {
+    public static void displayError(String message, String context, Throwable t, boolean rethrow) {
         if (_errorDialog != null) {
             _errorDialog.display(message == null ? t.getMessage() : message, context, t);
         } else {
-            if (message != null) {
-                System.err.println(message);
-            }
-            if (context != null) {
-                System.err.println(context);
-            }
-            t.printStackTrace(System.err);
+            UnhandledException.report(message == null ? t.getMessage() : message, context, t);
+        }
+        if (rethrow) {
+            ThrowableUtil.rethrowAsUnchecked(t);
         }
     }
 
@@ -304,8 +307,7 @@ public class Session {
                 }
             }
         } catch (Throwable e) {
-            displayError(e.getMessage(), "Logging off Mediaflux", e);
-            ThrowableUtil.rethrowAsUnchecked(e);
+            displayError(e.getMessage(), "Logging off Mediaflux", e, true);
         }
     }
 
@@ -384,11 +386,7 @@ public class Session {
         return false;
     }
 
-    public static LogonDialog logonDialog() {
-        return _logonDialog;
-    }
-
-    public static void showLogonDialog(String host, int port, Transport transport, String domain, String user,
+    public static void displayLogonDialog(String host, int port, Transport transport, String domain, String user,
             LogonResponseHandler rh) {
         if (_logonDialog != null) {
             _logonDialog.setServerHost(host, host != null);
